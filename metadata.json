@@ -1,0 +1,6 @@
+{
+  "name": "PAINITE CRAFTS - Handmade Clay Crafts",
+  "description": "Handmade Clay Crafts & Artisan Studio. Handcrafted with love. Every piece tells a story.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

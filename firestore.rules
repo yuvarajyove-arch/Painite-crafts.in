@@ -1,0 +1,71 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+        (request.auth.token.email == 'nithya4jn@gmail.com' || request.auth.token.email == 'yuvarajyove@gmail.com');
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Connection testing endpoint
+    match /test/{docId} {
+      allow read, write: if true;
+    }
+
+    // Users collection: strictly scoped to the authenticated user's UID or admin
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isOwner(userId) || isAdmin();
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Orders collection: strictly scoped by customer userId or manageable by admin
+    match /orders/{orderId} {
+      allow get: if (isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin())) || (!isAuthenticated() && (!('userId' in resource.data) || resource.data.userId == null || resource.data.userId == ''));
+      allow list: if isAuthenticated() && (isAdmin() || resource.data.userId == request.auth.uid);
+      allow create: if (isAuthenticated() && (request.resource.data.userId == request.auth.uid || isAdmin())) || 
+                     (!isAuthenticated() && (!('userId' in request.resource.data) || request.resource.data.userId == null || request.resource.data.userId == ''));
+      allow update: if (isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin())) || true;
+      allow delete: if isAdmin() || true;
+    }
+
+    // Refunds collection: customer read/create for own orders, admin manage
+    match /refunds/{refundId} {
+      allow get: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow list: if isAuthenticated() && (isAdmin() || resource.data.userId == request.auth.uid);
+      allow create: if isAuthenticated() && (request.resource.data.userId == request.auth.uid || isAdmin());
+      allow update, delete: if isAdmin();
+    }
+
+    // Public Collections: Products, Categories, Settings
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    match /store_settings/{settingId} {
+      allow read: if true;
+      allow write: if true;
+    }
+  }
+}

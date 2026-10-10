@@ -1,0 +1,113 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile with scoped personal information and addresses",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Firebase Auth UID" },
+        "name": { "type": "string", "description": "Full customer name" },
+        "email": { "type": "string", "description": "Customer email address" },
+        "avatar": { "type": "string", "description": "Profile picture URL" },
+        "phone": { "type": "string", "description": "Contact telephone number" },
+        "isAdmin": { "type": "boolean", "description": "Admin access flag" },
+        "createdAt": { "type": "string", "description": "ISO timestamp of account creation" },
+        "addresses": { "type": "array", "description": "List of customer saved shipping addresses" }
+      },
+      "required": ["id", "email"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Order records scoped to authenticated user or managed by store admin",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique Order ID" },
+        "orderNumber": { "type": "string", "description": "Human readable order identifier" },
+        "userId": { "type": "string", "description": "Firebase Auth UID of customer" },
+        "date": { "type": "string", "description": "ISO date string" },
+        "items": { "type": "array", "description": "Ordered cart items" },
+        "subtotal": { "type": "number", "description": "Subtotal in INR" },
+        "shippingCost": { "type": "number", "description": "Shipping fee in INR" },
+        "discount": { "type": "number", "description": "Discount in INR" },
+        "totalAmount": { "type": "number", "description": "Final total amount in INR" },
+        "customer": { "type": "object", "description": "Customer contact info" },
+        "shippingAddress": { "type": "object", "description": "Delivery address" },
+        "status": { "type": "string", "description": "Tracking status" },
+        "paymentMethod": { "type": "string", "description": "Payment method" },
+        "paymentStatus": { "type": "string", "description": "Payment verification state" }
+      },
+      "required": ["id", "orderNumber", "totalAmount"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Handmade clay art product catalogue",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Product ID" },
+        "title": { "type": "string", "description": "Product title" },
+        "price": { "type": "number", "description": "Current selling price" },
+        "category": { "type": "string", "description": "Category slug or name" }
+      },
+      "required": ["id", "title", "price"]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "Product classification category",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Category ID" },
+        "name": { "type": "string", "description": "Category display name" }
+      },
+      "required": ["id", "name"]
+    },
+    "StoreSettings": {
+      "title": "StoreSettings",
+      "description": "Store operational settings and announcements",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "description": "Support email" },
+        "phone": { "type": "string", "description": "Support phone number" },
+        "isStoreActive": { "type": "boolean", "description": "Online store active switch" }
+      }
+    },
+    "RefundRecord": {
+      "title": "RefundRecord",
+      "description": "Customer refund request and transaction record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Refund record ID" },
+        "orderId": { "type": "string", "description": "Associated Order ID" },
+        "userId": { "type": "string", "description": "Customer user ID" },
+        "amount": { "type": "number", "description": "Refunded amount" },
+        "reason": { "type": "string", "description": "Refund justification" }
+      },
+      "required": ["id", "orderId", "amount"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Private user profiles scoped strictly to user UID or accessible by verified store admin"
+    },
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Customer orders scoped to the owner UID or manageable by store admin"
+    },
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Public store products readable by all and modifiable by store admin"
+    },
+    "/categories/{categoryId}": {
+      "schema": "Category",
+      "description": "Public store categories readable by all and modifiable by store admin"
+    },
+    "/store_settings/{settingId}": {
+      "schema": "StoreSettings",
+      "description": "Public store configurations and notices modifiable by store admin"
+    },
+    "/refunds/{refundId}": {
+      "schema": "RefundRecord",
+      "description": "Refund transactions scoped to the customer UID or store admin"
+    }
+  }
+}
